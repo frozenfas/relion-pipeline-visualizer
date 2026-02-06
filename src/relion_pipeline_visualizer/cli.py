@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -18,6 +19,18 @@ HTML_TEMPLATE = """\
   <style>
     body {{ margin: 0; padding: 20px; background: #fff; }}
     #diagram {{ text-align: center; }}
+    .job-tooltip {{
+      position: absolute;
+      background: #222;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font: 14px/1.4 monospace;
+      white-space: pre;
+      pointer-events: none;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }}
   </style>
 </head>
 <body>
@@ -27,7 +40,43 @@ HTML_TEMPLATE = """\
     </pre>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
-  <script>mermaid.initialize({{ startOnLoad: true, fontSize: 16 }});</script>
+  <script>
+    const jobInfo = {job_info_json};
+
+    mermaid.initialize({{ startOnLoad: true, fontSize: 16 }});
+
+    // Attach tooltips after Mermaid renders
+    window.addEventListener("load", function() {{
+      const tip = document.createElement("div");
+      tip.className = "job-tooltip";
+      tip.style.display = "none";
+      document.body.appendChild(tip);
+
+      document.querySelectorAll(".node").forEach(function(node) {{
+        const id = node.id;
+        const info = jobInfo[id];
+        if (!info) return;
+
+        node.style.cursor = "pointer";
+        node.addEventListener("mouseenter", function(e) {{
+          let lines = [];
+          lines.push("Job:    " + info.name);
+          if (info.alias) lines.push("Alias:  " + info.alias);
+          lines.push("Type:   " + info.type_label);
+          lines.push("Status: " + info.status);
+          tip.textContent = lines.join("\\n");
+          tip.style.display = "block";
+        }});
+        node.addEventListener("mousemove", function(e) {{
+          tip.style.left = (e.pageX + 12) + "px";
+          tip.style.top = (e.pageY + 12) + "px";
+        }});
+        node.addEventListener("mouseleave", function() {{
+          tip.style.display = "none";
+        }});
+      }});
+    }});
+  </script>
 </body>
 </html>
 """
@@ -91,9 +140,26 @@ def main(argv: list[str] | None = None) -> None:
     mmd_path.write_text(mermaid_text)
     print(f"Wrote {mmd_path}", file=sys.stderr)
 
+    # Build tooltip data keyed by Mermaid node ID
+    job_info = {}
+    for job_name in jobs:
+        job = pipeline.jobs.get(job_name)
+        if job:
+            job_info[job.job_id] = {
+                "name": job.name,
+                "alias": job.alias,
+                "type_label": job.type_label,
+                "status": job.status,
+            }
+
     # Write .html file
     title = "RELION Pipeline"
     if args.job:
         title = f"RELION Pipeline — {args.job}"
-    html_path.write_text(HTML_TEMPLATE.format(title=title, mermaid=mermaid_text))
+    html_content = HTML_TEMPLATE.format(
+        title=title,
+        mermaid=mermaid_text,
+        job_info_json=json.dumps(job_info),
+    )
+    html_path.write_text(html_content)
     print(f"Wrote {html_path}", file=sys.stderr)
