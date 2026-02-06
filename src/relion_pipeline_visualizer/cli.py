@@ -172,6 +172,11 @@ def main(argv: list[str] | None = None) -> None:
         action="store_true",
         help="Open the diagram in mermaid.live in your browser",
     )
+    parser.add_argument(
+        "--kroki",
+        action="store_true",
+        help="Open the diagram as SVG via kroki.io in your browser",
+    )
 
     args = parser.parse_args(argv)
     star_path = Path(args.star_file)
@@ -280,7 +285,20 @@ def main(argv: list[str] | None = None) -> None:
         })
         encoded = base64.urlsafe_b64encode(state.encode()).decode().rstrip("=")
         url = f"https://mermaid.live/edit#base64:{encoded}"
-        print(f"Opening mermaid.live in browser...", file=sys.stderr)
+        print(f"mermaid.live URL:     {url}", file=sys.stderr)
         webbrowser.open(url)
+
+    if args.kroki:
+        import base64
+        import webbrowser
+        import zlib
+        compressed = zlib.compress(mermaid_text.encode(), 9)
+        encoded = base64.urlsafe_b64encode(compressed).decode()
+        url = f"https://kroki.io/mermaid/svg/{encoded}"
+        print(f"kroki.io URL:         {url}", file=sys.stderr)
+        webbrowser.open(url)
+
+    if args.live or args.kroki:
+        print("Note: enriched tooltips (commands, model stats) only work in the HTML output.", file=sys.stderr)
 
     print("Done.", file=sys.stderr)
