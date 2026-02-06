@@ -110,7 +110,16 @@ relion_pipeline_visualizer path/to/default_pipeline.star --job 40 --upstream --d
 
 ```bash
 relion_pipeline_visualizer path/to/default_pipeline.star \
-    -o /some/other/dir/pipeline.mmd
+    -o /some/other/dir/my_pipeline
+```
+
+### Open in mermaid.live
+
+Add `--live` to open the diagram in your browser on https://mermaid.live for interactive editing:
+
+```bash
+relion_pipeline_visualizer path/to/default_pipeline.star --live
+relion_pipeline_visualizer path/to/default_pipeline.star --job 93 --live
 ```
 
 ### CLI options
@@ -123,7 +132,8 @@ options:
   --job JOB_NAME        Focus on a specific job (e.g. '58', 'job058', or 'Refine3D/job058/')
   --upstream            Include upstream ancestors (default when --job is given)
   --downstream          Include downstream descendants
-  -o, --output FILE     Output path for .mmd file (default: pipeline.mmd next to star_file)
+  -o, --output NAME     Base name for output files (default: pipeline next to star_file)
+  --live                Open the diagram in mermaid.live in your browser
 ```
 
 
