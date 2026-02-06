@@ -167,6 +167,11 @@ def main(argv: list[str] | None = None) -> None:
         "--output", "-o",
         help="Base name for output files, e.g. 'my_pipeline' produces my_pipeline.mmd and my_pipeline.html (default: pipeline.mmd/.html next to star_file)",
     )
+    parser.add_argument(
+        "--live",
+        action="store_true",
+        help="Open the diagram in mermaid.live in your browser",
+    )
 
     args = parser.parse_args(argv)
     star_path = Path(args.star_file)
@@ -263,4 +268,14 @@ def main(argv: list[str] | None = None) -> None:
     )
     html_path.write_text(html_content)
     print(f"Wrote HTML viewer:    {html_path}", file=sys.stderr)
+
+    if args.live:
+        import base64
+        import webbrowser
+        payload = json.dumps({"code": mermaid_text, "mermaid": {"theme": "default"}})
+        encoded = base64.urlsafe_b64encode(payload.encode()).decode()
+        url = f"https://mermaid.live/edit#base64={encoded}"
+        print(f"Opening mermaid.live in browser...", file=sys.stderr)
+        webbrowser.open(url)
+
     print("Done.", file=sys.stderr)
