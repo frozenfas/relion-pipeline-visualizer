@@ -53,7 +53,7 @@ HTML_TEMPLATE = """\
       document.body.appendChild(tip);
 
       document.querySelectorAll(".node").forEach(function(node) {{
-        const id = node.id;
+        const id = node.getAttribute("data-id") || node.id;
         const info = jobInfo[id];
         if (!info) return;
 
