@@ -9,6 +9,30 @@ from relion_pipeline_visualizer.graph import get_full_graph, get_subgraph
 from relion_pipeline_visualizer.mermaid import render_mermaid
 
 
+HTML_TEMPLATE = """\
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{title}</title>
+  <style>
+    body {{ margin: 0; padding: 20px; background: #fff; }}
+    #diagram {{ text-align: center; }}
+  </style>
+</head>
+<body>
+  <div id="diagram">
+    <pre class="mermaid">
+{mermaid}
+    </pre>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({{ startOnLoad: true, fontSize: 16 }});</script>
+</body>
+</html>
+"""
+
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(
         description="Visualize a RELION pipeline STAR file as a Mermaid diagram.",
@@ -54,12 +78,22 @@ def main(argv: list[str] | None = None) -> None:
 
     mermaid_text = render_mermaid(jobs, edges, pipeline)
 
-    # Determine output path
+    # Determine output paths
     star_path = Path(args.star_file)
     if args.output:
         mmd_path = Path(args.output)
     else:
         mmd_path = star_path.parent / "pipeline.mmd"
 
+    html_path = mmd_path.with_suffix(".html")
+
+    # Write .mmd file
     mmd_path.write_text(mermaid_text)
     print(f"Wrote {mmd_path}", file=sys.stderr)
+
+    # Write .html file
+    title = "RELION Pipeline"
+    if args.job:
+        title = f"RELION Pipeline — {args.job}"
+    html_path.write_text(HTML_TEMPLATE.format(title=title, mermaid=mermaid_text))
+    print(f"Wrote {html_path}", file=sys.stderr)
