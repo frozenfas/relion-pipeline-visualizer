@@ -6,6 +6,5 @@ dependencies:
   - pip
   - pip:
       - starfile
-      - mmdc
       - -e .
 
