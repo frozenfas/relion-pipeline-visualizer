@@ -113,14 +113,15 @@ relion_pipeline_visualizer path/to/default_pipeline.star \
     -o /some/other/dir/my_pipeline
 ```
 
-### Open in mermaid.live
-
-Add `--live` to open the diagram in your browser on https://mermaid.live for interactive editing:
+### Open in mermaid.live or kroki.io
 
 ```bash
-relion_pipeline_visualizer path/to/default_pipeline.star --live
-relion_pipeline_visualizer path/to/default_pipeline.star --job 93 --live
+relion_pipeline_visualizer path/to/default_pipeline.star --mermaid
+relion_pipeline_visualizer path/to/default_pipeline.star --kroki
+relion_pipeline_visualizer path/to/default_pipeline.star --job 93 --mermaid --kroki
 ```
+
+Both flags print the URL to the terminal and open it in your browser.
 
 ### CLI options
 
@@ -133,21 +134,34 @@ options:
   --upstream            Include upstream ancestors (default when --job is given)
   --downstream          Include downstream descendants
   -o, --output NAME     Base name for output files (default: pipeline next to star_file)
-  --live                Open the diagram in mermaid.live in your browser
+  --mermaid             Open the diagram in mermaid.live in your browser
+  --kroki               Open the diagram as SVG via kroki.io in your browser
 ```
 
 
 Viewing diagrams
 ----------------
 
-**HTML (recommended):** Open the generated `pipeline.html` in any browser. Nodes are color-coded by job type. Hovering over a node shows a tooltip with:
+### HTML output (recommended)
+
+Open the generated `pipeline.html` in any browser. This is the only output format with **enhanced results** -- nodes are color-coded by job type, and hovering over a node shows a tooltip with:
 
 - Job name, alias, type, and status
 - Last RELION command executed (from `note.txt`)
 - For Refine3D jobs: resolution, Fourier completeness, class distribution, and rotational/translational accuracy (from `run_model.star`)
 - For Class3D jobs: per-class statistics from the last iteration model file
 
-**Mermaid source:** Paste the contents of the `.mmd` file into https://mermaid.live to visualize or edit interactively.
+### mermaid.live (`--mermaid`)
+
+Opens the diagram in the [mermaid.live](https://mermaid.live) interactive editor. Useful for rearranging node layout, editing the diagram, and exporting to PNG/SVG. Does not include enhanced results (tooltips with commands and model statistics).
+
+### kroki.io (`--kroki`)
+
+Opens the diagram as a clean static SVG rendered by [kroki.io](https://kroki.io). Useful for sharing a direct link or embedding the diagram. Does not include enhanced results.
+
+### Mermaid source (`.mmd`)
+
+The raw Mermaid source file can also be pasted into https://mermaid.live or any Mermaid-compatible tool.
 
 
 Project structure

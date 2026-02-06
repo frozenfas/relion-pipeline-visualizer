@@ -168,7 +168,7 @@ def main(argv: list[str] | None = None) -> None:
         help="Base name for output files, e.g. 'my_pipeline' produces my_pipeline.mmd and my_pipeline.html (default: pipeline.mmd/.html next to star_file)",
     )
     parser.add_argument(
-        "--live",
+        "--mermaid",
         action="store_true",
         help="Open the diagram in mermaid.live in your browser",
     )
@@ -274,7 +274,7 @@ def main(argv: list[str] | None = None) -> None:
     html_path.write_text(html_content)
     print(f"Wrote HTML viewer:    {html_path}", file=sys.stderr)
 
-    if args.live:
+    if args.mermaid:
         import base64
         import webbrowser
         state = json.dumps({
@@ -298,7 +298,7 @@ def main(argv: list[str] | None = None) -> None:
         print(f"kroki.io URL:         {url}", file=sys.stderr)
         webbrowser.open(url)
 
-    if args.live or args.kroki:
+    if args.mermaid or args.kroki:
         print("Note: enriched tooltips (commands, model stats) only work in the HTML output.", file=sys.stderr)
 
     print("Done.", file=sys.stderr)
