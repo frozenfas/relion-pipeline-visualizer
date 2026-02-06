@@ -47,7 +47,8 @@ If the environment file changes, update with:
 
 3. Verify the environment
 
-    python -c "import starfile; print(starfile.__version__)"
+    python -c "import starfile; print('starfile import OK')"
+
 
 
 Usage (early example)
