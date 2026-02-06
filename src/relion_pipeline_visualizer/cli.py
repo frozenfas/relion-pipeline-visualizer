@@ -165,15 +165,22 @@ def main(argv: list[str] | None = None) -> None:
     )
     parser.add_argument(
         "--output", "-o",
-        help="Output path for .mmd file (default: pipeline.mmd next to star_file)",
+        help="Base name for output files, e.g. 'my_pipeline' produces my_pipeline.mmd and my_pipeline.html (default: pipeline.mmd/.html next to star_file)",
     )
 
     args = parser.parse_args(argv)
     star_path = Path(args.star_file)
     project_dir = star_path.parent
 
+    print(f"Reading pipeline from: {star_path}", file=sys.stderr)
     pipeline = parse_pipeline(args.star_file)
+    print(f"Found {len(pipeline.jobs)} jobs and {len(pipeline.edges)} edges", file=sys.stderr)
+
+    print("Enriching jobs with note.txt commands and model statistics...", file=sys.stderr)
     enrich_jobs(pipeline, project_dir)
+    n_commands = sum(1 for j in pipeline.jobs.values() if j.last_command)
+    n_models = sum(1 for j in pipeline.jobs.values() if j.model_classes)
+    print(f"  {n_commands} jobs with commands, {n_models} jobs with model data", file=sys.stderr)
 
     if args.job:
         job_name = _resolve_job_name(args.job, pipeline)
@@ -190,15 +197,28 @@ def main(argv: list[str] | None = None) -> None:
         if not upstream and not downstream:
             upstream = True
 
+        direction = []
+        if upstream:
+            direction.append("upstream")
+        if downstream:
+            direction.append("downstream")
+        print(f"Extracting subgraph for {job_name} ({' + '.join(direction)})...", file=sys.stderr)
         jobs, edges = get_subgraph(pipeline, job_name, upstream=upstream, downstream=downstream)
+        print(f"  Subgraph: {len(jobs)} jobs, {len(edges)} edges", file=sys.stderr)
     else:
+        print("Rendering full pipeline...", file=sys.stderr)
         jobs, edges = get_full_graph(pipeline)
 
     mermaid_text = render_mermaid(jobs, edges, pipeline)
 
     # Determine output paths
     if args.output:
-        mmd_path = Path(args.output)
+        out = Path(args.output)
+        # If user gave a path with extension, use it; otherwise treat as base name
+        if out.suffix in (".mmd", ".html"):
+            mmd_path = out.with_suffix(".mmd")
+        else:
+            mmd_path = out.with_suffix(".mmd")
     else:
         mmd_path = star_path.parent / "pipeline.mmd"
 
@@ -206,7 +226,7 @@ def main(argv: list[str] | None = None) -> None:
 
     # Write .mmd file
     mmd_path.write_text(mermaid_text)
-    print(f"Wrote {mmd_path}", file=sys.stderr)
+    print(f"Wrote Mermaid diagram: {mmd_path}", file=sys.stderr)
 
     # Build tooltip data keyed by Mermaid node ID
     job_info = {}
@@ -235,11 +255,12 @@ def main(argv: list[str] | None = None) -> None:
     # Write .html file
     title = "RELION Pipeline"
     if args.job:
-        title = f"RELION Pipeline — {args.job}"
+        title = f"RELION Pipeline — {job_name}"
     html_content = HTML_TEMPLATE.format(
         title=title,
         mermaid=mermaid_text,
         job_info_json=json.dumps(job_info),
     )
     html_path.write_text(html_content)
-    print(f"Wrote {html_path}", file=sys.stderr)
+    print(f"Wrote HTML viewer:    {html_path}", file=sys.stderr)
+    print("Done.", file=sys.stderr)
