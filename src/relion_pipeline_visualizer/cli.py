@@ -43,23 +43,33 @@ HTML_TEMPLATE = """\
   <script>
     const jobInfo = {job_info_json};
 
-    mermaid.initialize({{ startOnLoad: true, fontSize: 16 }});
+    mermaid.initialize({{ startOnLoad: false, fontSize: 48 }});
 
-    // Attach tooltips after Mermaid renders
-    window.addEventListener("load", function() {{
+    // Render then attach tooltips
+    mermaid.run().then(function() {{
       const tip = document.createElement("div");
       tip.className = "job-tooltip";
       tip.style.display = "none";
       document.body.appendChild(tip);
 
+      function findJobId(node) {{
+        // Try data-id first (Mermaid v11 sets this)
+        var did = node.getAttribute("data-id");
+        if (did && jobInfo[did]) return did;
+        // Fallback: extract job### from the element id (e.g. "flowchart-job019-0")
+        var m = node.id.match(/job\\d+/);
+        return m ? m[0] : null;
+      }}
+
       document.querySelectorAll(".node").forEach(function(node) {{
-        const id = node.getAttribute("data-id") || node.id;
-        const info = jobInfo[id];
+        var jobId = findJobId(node);
+        if (!jobId) return;
+        var info = jobInfo[jobId];
         if (!info) return;
 
         node.style.cursor = "pointer";
         node.addEventListener("mouseenter", function(e) {{
-          let lines = [];
+          var lines = [];
           lines.push("Job:    " + info.name);
           if (info.alias) lines.push("Alias:  " + info.alias);
           lines.push("Type:   " + info.type_label);

@@ -24,6 +24,8 @@ Features
 - Status-aware styling (Failed jobs get red borders, Running jobs get dashed orange borders)
 - Full pipeline view or focused subgraph for a specific job
 - Upstream (ancestors) and/or downstream (descendants) traversal
+- HTML output with interactive hover tooltips showing job details
+- Outputs both `.mmd` (Mermaid source) and `.html` (self-contained browser view)
 
 
 Installation
@@ -69,7 +71,7 @@ After activating the conda environment, the `relion_pipeline_visualizer` command
 relion_pipeline_visualizer path/to/default_pipeline.star
 ```
 
-This writes `pipeline.mmd` to the same directory as the STAR file.
+This writes `pipeline.mmd` and `pipeline.html` to the same directory as the STAR file. Open the HTML file in a browser for an interactive diagram with hover tooltips.
 
 ### Focused subgraph for a specific job
 
@@ -115,10 +117,12 @@ options:
 ```
 
 
-Viewing Mermaid diagrams
-------------------------
+Viewing diagrams
+----------------
 
-Paste the contents of the `.mmd` file into https://mermaid.live to visualize interactively.
+**HTML (recommended):** Open the generated `pipeline.html` in any browser. Nodes are color-coded by job type, and hovering over a node shows a tooltip with the job name, alias, type, and status.
+
+**Mermaid source:** Paste the contents of the `.mmd` file into https://mermaid.live to visualize or edit interactively.
 
 
 Project structure
