@@ -272,17 +272,14 @@ def main(argv: list[str] | None = None) -> None:
     if args.live:
         import base64
         import webbrowser
-        import zlib
         state = json.dumps({
             "code": mermaid_text,
             "mermaid": {"theme": "default"},
             "autoSync": True,
             "updateDiagram": True,
         })
-        compressor = zlib.compressobj(level=9, wbits=-15)
-        compressed = compressor.compress(state.encode()) + compressor.flush()
-        encoded = base64.urlsafe_b64encode(compressed).decode()
-        url = f"https://mermaid.live/edit#pako:{encoded}"
+        encoded = base64.urlsafe_b64encode(state.encode()).decode().rstrip("=")
+        url = f"https://mermaid.live/edit#base64:{encoded}"
         print(f"Opening mermaid.live in browser...", file=sys.stderr)
         webbrowser.open(url)
 
