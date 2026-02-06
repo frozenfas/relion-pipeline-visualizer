@@ -134,9 +134,12 @@ options:
   --upstream            Include upstream ancestors (default when --job is given)
   --downstream          Include downstream descendants
   -o, --output NAME     Base name for output files (default: pipeline next to star_file)
+  -f, --force           Overwrite existing output files without prompting
   --mermaid             Open the diagram in mermaid.live in your browser
   --kroki               Open the diagram as SVG via kroki.io in your browser
 ```
+
+By default, the tool will refuse to overwrite existing `.mmd` or `.html` files. Use `--force` / `-f` to allow overwriting.
 
 
 Viewing diagrams
@@ -193,6 +196,20 @@ RELION compatibility
 - Supported: RELION 4 and 5
 
 
+Privacy and third-party services
+---------------------------------
+
+When using `--mermaid` or `--kroki`, diagram data is sent to third-party
+services (mermaid.live and kroki.io respectively). The data sent includes
+job names, aliases, types, and statuses from your pipeline — but not the
+enriched tooltip data (commands, model statistics). If your project data is
+sensitive, use only the local HTML output.
+
+The HTML output loads the Mermaid JavaScript library from a CDN
+(`cdn.jsdelivr.net`). This requires an internet connection when first
+opening the file, but no project data is sent to the CDN.
+
+
 License
 -------
 
@@ -203,6 +220,17 @@ the GPL-3.0. Any redistributed or modified versions must also be licensed
 under GPL-3.0.
 
 See the LICENSE file for full details.
+
+
+Disclaimer
+----------
+
+This software is provided as-is, without warranty of any kind. Use at your
+own risk. The tool only writes `.mmd` and `.html` output files (and will
+refuse to overwrite existing files unless `--force` is used). It does not
+modify your RELION project data.
+
+This project was co-written with [Claude](https://claude.ai) (Anthropic).
 
 
 Status

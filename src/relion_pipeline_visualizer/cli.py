@@ -168,6 +168,11 @@ def main(argv: list[str] | None = None) -> None:
         help="Base name for output files, e.g. 'my_pipeline' produces my_pipeline.mmd and my_pipeline.html (default: pipeline.mmd/.html next to star_file)",
     )
     parser.add_argument(
+        "--force", "-f",
+        action="store_true",
+        help="Overwrite existing output files without prompting",
+    )
+    parser.add_argument(
         "--mermaid",
         action="store_true",
         help="Open the diagram in mermaid.live in your browser",
@@ -233,6 +238,15 @@ def main(argv: list[str] | None = None) -> None:
         mmd_path = star_path.parent / "pipeline.mmd"
 
     html_path = mmd_path.with_suffix(".html")
+
+    # Check for existing files
+    if not args.force:
+        existing = [p for p in (mmd_path, html_path) if p.exists()]
+        if existing:
+            names = ", ".join(str(p) for p in existing)
+            print(f"Error: output file(s) already exist: {names}", file=sys.stderr)
+            print("Use --force / -f to overwrite.", file=sys.stderr)
+            sys.exit(1)
 
     # Write .mmd file
     mmd_path.write_text(mermaid_text)
