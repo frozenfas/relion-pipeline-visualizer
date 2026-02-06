@@ -25,7 +25,11 @@ Features
 - Full pipeline view or focused subgraph for a specific job
 - Upstream (ancestors) and/or downstream (descendants) traversal
 - HTML output with interactive hover tooltips showing job details
+- Tooltips show last RELION command from `note.txt`
+- Refine3D tooltips show resolution, Fourier completeness, class distribution, and accuracy
+- Class3D tooltips show per-class statistics from the last iteration model file
 - Outputs both `.mmd` (Mermaid source) and `.html` (self-contained browser view)
+- Shorthand job selection: `--job 93`, `--job job093`, or `--job Refine3D/job093/`
 
 
 Installation
@@ -75,25 +79,31 @@ This writes `pipeline.mmd` and `pipeline.html` to the same directory as the STAR
 
 ### Focused subgraph for a specific job
 
-Show upstream ancestors ("how did I get here?"):
+The `--job` flag accepts shorthand notation -- you can use just the number, the job ID, or the full path:
 
 ```bash
-relion_pipeline_visualizer path/to/default_pipeline.star \
-    --job "Refine3D/job058/"
+# All equivalent:
+relion_pipeline_visualizer path/to/default_pipeline.star --job 58
+relion_pipeline_visualizer path/to/default_pipeline.star --job job058
+relion_pipeline_visualizer path/to/default_pipeline.star --job "Refine3D/job058/"
+```
+
+Show upstream ancestors ("how did I get here?" -- default):
+
+```bash
+relion_pipeline_visualizer path/to/default_pipeline.star --job 58
 ```
 
 Show downstream descendants ("what depends on this?"):
 
 ```bash
-relion_pipeline_visualizer path/to/default_pipeline.star \
-    --job "Refine3D/job053/" --downstream
+relion_pipeline_visualizer path/to/default_pipeline.star --job 53 --downstream
 ```
 
 Show both directions:
 
 ```bash
-relion_pipeline_visualizer path/to/default_pipeline.star \
-    --job "Refine3D/job040/" --upstream --downstream
+relion_pipeline_visualizer path/to/default_pipeline.star --job 40 --upstream --downstream
 ```
 
 ### Custom output path
@@ -110,7 +120,7 @@ positional arguments:
   star_file             Path to default_pipeline.star
 
 options:
-  --job JOB_NAME        Focus on a specific job (e.g. 'Refine3D/job058/')
+  --job JOB_NAME        Focus on a specific job (e.g. '58', 'job058', or 'Refine3D/job058/')
   --upstream            Include upstream ancestors (default when --job is given)
   --downstream          Include downstream descendants
   -o, --output FILE     Output path for .mmd file (default: pipeline.mmd next to star_file)
@@ -120,7 +130,12 @@ options:
 Viewing diagrams
 ----------------
 
-**HTML (recommended):** Open the generated `pipeline.html` in any browser. Nodes are color-coded by job type, and hovering over a node shows a tooltip with the job name, alias, type, and status.
+**HTML (recommended):** Open the generated `pipeline.html` in any browser. Nodes are color-coded by job type. Hovering over a node shows a tooltip with:
+
+- Job name, alias, type, and status
+- Last RELION command executed (from `note.txt`)
+- For Refine3D jobs: resolution, Fourier completeness, class distribution, and rotational/translational accuracy (from `run_model.star`)
+- For Class3D jobs: per-class statistics from the last iteration model file
 
 **Mermaid source:** Paste the contents of the `.mmd` file into https://mermaid.live to visualize or edit interactively.
 
@@ -135,7 +150,7 @@ relion-pipeline-visualizer/
 │       ├── __init__.py
 │       ├── __main__.py        # Entry point for python -m
 │       ├── cli.py             # CLI argument parsing
-│       ├── parser.py          # STAR file parsing → Pipeline dataclass
+│       ├── parser.py          # STAR file parsing, job enrichment (note.txt, model stats)
 │       ├── graph.py           # DAG operations (ancestors, descendants)
 │       └── mermaid.py         # Mermaid diagram rendering
 ├── tests/
