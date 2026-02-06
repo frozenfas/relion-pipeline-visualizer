@@ -13,6 +13,7 @@ The tool is intended for:
 - Cryo-EM pipeline inspection and documentation
 - Academic and reproducible research workflows
 
+This project was co-written with [Claude](https://claude.ai) (Anthropic).
 
 Features
 --------
