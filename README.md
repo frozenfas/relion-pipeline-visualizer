@@ -1,11 +1,12 @@
 relion-pipeline-visualizer
 ==========================
 
-Visualize RELION 5 cryo-EM processing pipelines as structured, readable diagrams.
+Visualize RELION 5 cryo-EM processing pipelines as structured, readable Mermaid diagrams.
 
-This project parses RELION pipeline STAR files and converts them into graph
-representations (e.g. Mermaid diagrams, SVGs) that make complex workflows
-easier to understand, debug, and communicate.
+This project parses RELION pipeline STAR files and converts them into
+job-level directed acyclic graphs (DAGs), rendering color-coded Mermaid
+flowcharts that make complex workflows easier to understand, debug, and
+communicate.
 
 The tool is intended for:
 - RELION 5 users
@@ -13,15 +14,16 @@ The tool is intended for:
 - Academic and reproducible research workflows
 
 
-Features (current / planned)
-----------------------------
+Features
+--------
 
-- Parse RELION 5 pipeline STAR files
-- Extract job dependencies and data flow
-- Generate Mermaid diagrams of pipelines
-- Job-type–aware styling (import, classification, refinement, etc.)
-- SVG output suitable for Chrome and documentation
-
+- Parse RELION 5 `default_pipeline.star` files
+- Derive job-to-job edges by joining through shared intermediate nodes
+- Generate Mermaid `graph TD` flowcharts
+- Job-type-aware color coding (Import, Extract, Refine3D, Class3D, Select, MaskCreate, PostProcess, CtfRefine, MultiBody, Subtract, JoinStar)
+- Status-aware styling (Failed jobs get red borders, Running jobs get dashed orange borders)
+- Full pipeline view or focused subgraph for a specific job
+- Upstream (ancestors) and/or downstream (descendants) traversal
 
 
 Installation
@@ -31,70 +33,95 @@ Installation uses a Conda environment defined by environment.yml.
 
 1. Clone the repository
 
-    git clone https://github.com/<your-username>/relion-pipeline-visualizer.git
-    cd relion-pipeline-visualizer
-
+       git clone https://github.com/frozenfas/relion-pipeline-visualizer.git
+       cd relion-pipeline-visualizer
 
 2. Create the Conda environment
 
-    conda env create -f environment.yml
-    conda activate relion-pipeline-visualizer
+       conda env create -f environment.yml
+       conda activate relion-pipeline-visualizer
 
-If the environment file changes, update with:
+   If the environment file changes, update with:
 
-    conda env update -f environment.yml --prune
-
+       conda env update -f environment.yml --prune
 
 3. Verify the environment
 
-    python -c "import starfile; print('starfile import OK')"
+       python -c "import starfile; print('starfile import OK')"
 
 
+Usage
+-----
 
-Usage (early example)
----------------------
+All commands should be run from the repository root with `PYTHONPATH=src`.
 
-WARNING: The interface is under active development and may change.
+### Full pipeline diagram
 
-    python -m relion_pipeline_visualizer \
-        examples/pipeline.star \
-        --format mermaid \
-        --output pipeline.mmd
+    PYTHONPATH=src python -m relion_pipeline_visualizer path/to/default_pipeline.star
 
-This produces a Mermaid (.mmd) file describing the RELION pipeline graph.
+### Focused subgraph for a specific job
+
+Show upstream ancestors ("how did I get here?"):
+
+    PYTHONPATH=src python -m relion_pipeline_visualizer path/to/default_pipeline.star \
+        --job "Refine3D/job058/"
+
+Show downstream descendants ("what depends on this?"):
+
+    PYTHONPATH=src python -m relion_pipeline_visualizer path/to/default_pipeline.star \
+        --job "Refine3D/job053/" --downstream
+
+Show both directions:
+
+    PYTHONPATH=src python -m relion_pipeline_visualizer path/to/default_pipeline.star \
+        --job "Refine3D/job040/" --upstream --downstream
+
+### Write to file
+
+    PYTHONPATH=src python -m relion_pipeline_visualizer path/to/default_pipeline.star \
+        -o pipeline.mmd
+
+### CLI options
+
+    positional arguments:
+      star_file             Path to default_pipeline.star
+
+    options:
+      --job JOB_NAME        Focus on a specific job (e.g. 'Refine3D/job058/')
+      --upstream            Include upstream ancestors (default when --job is given)
+      --downstream          Include downstream descendants
+      -o, --output FILE     Write output to file instead of stdout
 
 
 Rendering Mermaid diagrams
 --------------------------
 
-Convert to SVG using the Mermaid CLI:
+Paste the output into https://mermaid.live to visualize interactively.
+
+Or convert to SVG using the Mermaid CLI:
 
     npm install -g @mermaid-js/mermaid-cli
     mmdc -i pipeline.mmd -o pipeline.svg
-
-View in Chrome:
-
-    google-chrome pipeline.svg
-
-The generated SVG is suitable for zooming and embedding in documentation.
 
 
 Project structure
 -----------------
 
-relion-pipeline-visualizer/
-├── relion_pipeline_visualizer/
-│   ├── cli.py
-│   ├── parser/
-│   │   └── relion4_star.py
-│   ├── graph/
-│   │   └── mermaid.py
-│   └── validate.py
-├── examples/
-├── tests/
-├── environment.yml
-├── README.md
-└── LICENSE
+    relion-pipeline-visualizer/
+    ├── src/
+    │   └── relion_pipeline_visualizer/
+    │       ├── __init__.py
+    │       ├── __main__.py        # Entry point for python -m
+    │       ├── cli.py             # CLI argument parsing
+    │       ├── parser.py          # STAR file parsing → Pipeline dataclass
+    │       ├── graph.py           # DAG operations (ancestors, descendants)
+    │       └── mermaid.py         # Mermaid diagram rendering
+    ├── tests/
+    │   └── data/
+    │       └── default_pipeline.star
+    ├── environment.yml
+    ├── README.md
+    └── LICENSE
 
 
 RELION compatibility
