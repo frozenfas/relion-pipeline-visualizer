@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "relion-pipeline-visualizer"
+version = "0.1.0"
+description = "Visualize RELION cryo-EM pipelines as Mermaid diagrams"
+requires-python = ">=3.10"
+license = "GPL-3.0-only"
+dependencies = ["starfile"]
+
+[project.scripts]
+relion_pipeline_visualizer = "relion_pipeline_visualizer.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -38,7 +38,7 @@ git clone https://github.com/frozenfas/relion-pipeline-visualizer.git
 cd relion-pipeline-visualizer
 ```
 
-2. Create the Conda environment
+2. Create the Conda environment (this also installs the package)
 
 ```bash
 conda env create -f environment.yml
@@ -51,22 +51,22 @@ If the environment file changes, update with:
 conda env update -f environment.yml --prune
 ```
 
-3. Verify the environment
+3. Verify the installation
 
 ```bash
-python -c "import starfile; print('starfile import OK')"
+relion_pipeline_visualizer --help
 ```
 
 
 Usage
 -----
 
-All commands should be run from the repository root with `PYTHONPATH=src`.
+After activating the conda environment, the `relion_pipeline_visualizer` command is available from any directory.
 
 ### Full pipeline diagram
 
 ```bash
-PYTHONPATH=src python -m relion_pipeline_visualizer path/to/default_pipeline.star
+relion_pipeline_visualizer path/to/default_pipeline.star
 ```
 
 ### Focused subgraph for a specific job
@@ -74,28 +74,28 @@ PYTHONPATH=src python -m relion_pipeline_visualizer path/to/default_pipeline.sta
 Show upstream ancestors ("how did I get here?"):
 
 ```bash
-PYTHONPATH=src python -m relion_pipeline_visualizer path/to/default_pipeline.star \
+relion_pipeline_visualizer path/to/default_pipeline.star \
     --job "Refine3D/job058/"
 ```
 
 Show downstream descendants ("what depends on this?"):
 
 ```bash
-PYTHONPATH=src python -m relion_pipeline_visualizer path/to/default_pipeline.star \
+relion_pipeline_visualizer path/to/default_pipeline.star \
     --job "Refine3D/job053/" --downstream
 ```
 
 Show both directions:
 
 ```bash
-PYTHONPATH=src python -m relion_pipeline_visualizer path/to/default_pipeline.star \
+relion_pipeline_visualizer path/to/default_pipeline.star \
     --job "Refine3D/job040/" --upstream --downstream
 ```
 
 ### Write to file
 
 ```bash
-PYTHONPATH=src python -m relion_pipeline_visualizer path/to/default_pipeline.star \
+relion_pipeline_visualizer path/to/default_pipeline.star \
     -o pipeline.mmd
 ```
 
@@ -142,6 +142,7 @@ relion-pipeline-visualizer/
 ├── tests/
 │   └── data/
 │       └── default_pipeline.star
+├── pyproject.toml
 ├── environment.yml
 ├── README.md
 └── LICENSE
