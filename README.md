@@ -33,21 +33,29 @@ Installation uses a Conda environment defined by environment.yml.
 
 1. Clone the repository
 
-       git clone https://github.com/frozenfas/relion-pipeline-visualizer.git
-       cd relion-pipeline-visualizer
+```bash
+git clone https://github.com/frozenfas/relion-pipeline-visualizer.git
+cd relion-pipeline-visualizer
+```
 
 2. Create the Conda environment
 
-       conda env create -f environment.yml
-       conda activate relion-pipeline-visualizer
+```bash
+conda env create -f environment.yml
+conda activate relion-pipeline-visualizer
+```
 
-   If the environment file changes, update with:
+If the environment file changes, update with:
 
-       conda env update -f environment.yml --prune
+```bash
+conda env update -f environment.yml --prune
+```
 
 3. Verify the environment
 
-       python -c "import starfile; print('starfile import OK')"
+```bash
+python -c "import starfile; print('starfile import OK')"
+```
 
 
 Usage
@@ -57,40 +65,52 @@ All commands should be run from the repository root with `PYTHONPATH=src`.
 
 ### Full pipeline diagram
 
-    PYTHONPATH=src python -m relion_pipeline_visualizer path/to/default_pipeline.star
+```bash
+PYTHONPATH=src python -m relion_pipeline_visualizer path/to/default_pipeline.star
+```
 
 ### Focused subgraph for a specific job
 
 Show upstream ancestors ("how did I get here?"):
 
-    PYTHONPATH=src python -m relion_pipeline_visualizer path/to/default_pipeline.star \
-        --job "Refine3D/job058/"
+```bash
+PYTHONPATH=src python -m relion_pipeline_visualizer path/to/default_pipeline.star \
+    --job "Refine3D/job058/"
+```
 
 Show downstream descendants ("what depends on this?"):
 
-    PYTHONPATH=src python -m relion_pipeline_visualizer path/to/default_pipeline.star \
-        --job "Refine3D/job053/" --downstream
+```bash
+PYTHONPATH=src python -m relion_pipeline_visualizer path/to/default_pipeline.star \
+    --job "Refine3D/job053/" --downstream
+```
 
 Show both directions:
 
-    PYTHONPATH=src python -m relion_pipeline_visualizer path/to/default_pipeline.star \
-        --job "Refine3D/job040/" --upstream --downstream
+```bash
+PYTHONPATH=src python -m relion_pipeline_visualizer path/to/default_pipeline.star \
+    --job "Refine3D/job040/" --upstream --downstream
+```
 
 ### Write to file
 
-    PYTHONPATH=src python -m relion_pipeline_visualizer path/to/default_pipeline.star \
-        -o pipeline.mmd
+```bash
+PYTHONPATH=src python -m relion_pipeline_visualizer path/to/default_pipeline.star \
+    -o pipeline.mmd
+```
 
 ### CLI options
 
-    positional arguments:
-      star_file             Path to default_pipeline.star
+```
+positional arguments:
+  star_file             Path to default_pipeline.star
 
-    options:
-      --job JOB_NAME        Focus on a specific job (e.g. 'Refine3D/job058/')
-      --upstream            Include upstream ancestors (default when --job is given)
-      --downstream          Include downstream descendants
-      -o, --output FILE     Write output to file instead of stdout
+options:
+  --job JOB_NAME        Focus on a specific job (e.g. 'Refine3D/job058/')
+  --upstream            Include upstream ancestors (default when --job is given)
+  --downstream          Include downstream descendants
+  -o, --output FILE     Write output to file instead of stdout
+```
 
 
 Rendering Mermaid diagrams
@@ -100,28 +120,32 @@ Paste the output into https://mermaid.live to visualize interactively.
 
 Or convert to SVG using the Mermaid CLI:
 
-    npm install -g @mermaid-js/mermaid-cli
-    mmdc -i pipeline.mmd -o pipeline.svg
+```bash
+npm install -g @mermaid-js/mermaid-cli
+mmdc -i pipeline.mmd -o pipeline.svg
+```
 
 
 Project structure
 -----------------
 
-    relion-pipeline-visualizer/
-    ├── src/
-    │   └── relion_pipeline_visualizer/
-    │       ├── __init__.py
-    │       ├── __main__.py        # Entry point for python -m
-    │       ├── cli.py             # CLI argument parsing
-    │       ├── parser.py          # STAR file parsing → Pipeline dataclass
-    │       ├── graph.py           # DAG operations (ancestors, descendants)
-    │       └── mermaid.py         # Mermaid diagram rendering
-    ├── tests/
-    │   └── data/
-    │       └── default_pipeline.star
-    ├── environment.yml
-    ├── README.md
-    └── LICENSE
+```
+relion-pipeline-visualizer/
+├── src/
+│   └── relion_pipeline_visualizer/
+│       ├── __init__.py
+│       ├── __main__.py        # Entry point for python -m
+│       ├── cli.py             # CLI argument parsing
+│       ├── parser.py          # STAR file parsing → Pipeline dataclass
+│       ├── graph.py           # DAG operations (ancestors, descendants)
+│       └── mermaid.py         # Mermaid diagram rendering
+├── tests/
+│   └── data/
+│       └── default_pipeline.star
+├── environment.yml
+├── README.md
+└── LICENSE
+```
 
 
 RELION compatibility
