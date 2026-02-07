@@ -298,8 +298,7 @@ def main(argv: list[str] | None = None) -> None:
         })
         encoded = base64.urlsafe_b64encode(state.encode()).decode().rstrip("=")
         url = f"https://mermaid.live/edit#base64:{encoded}"
-        link = f"\033]8;;{url}\033\\Open in mermaid.live\033]8;;\033\\"
-        print(f"mermaid.live: {link}", file=sys.stderr)
+        print(f"\nmermaid.live URL:\n  {url}\n", file=sys.stderr)
         webbrowser.open(url)
 
     if args.kroki:
@@ -309,8 +308,7 @@ def main(argv: list[str] | None = None) -> None:
         compressed = zlib.compress(mermaid_text.encode(), 9)
         encoded = base64.urlsafe_b64encode(compressed).decode()
         url = f"https://kroki.io/mermaid/svg/{encoded}"
-        link = f"\033]8;;{url}\033\\Open in kroki.io\033]8;;\033\\"
-        print(f"kroki.io:     {link}", file=sys.stderr)
+        print(f"\nkroki.io URL:\n  {url}\n", file=sys.stderr)
         webbrowser.open(url)
 
     if args.mermaid or args.kroki:
