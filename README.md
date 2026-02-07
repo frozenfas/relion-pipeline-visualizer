@@ -16,7 +16,9 @@ The tool is intended for:
 **Author:** Sean Connell (sean.connell@gmail.com)
 Structural Biology of Cellular Machines Laboratory, [Biobizkaia](https://www.biobizkaia.org)
 
-This project was co-written with [Claude](https://claude.ai) (Anthropic).
+This project was co-written with [Claude](https://claude.ai) (Anthropic). It was my first 
+project with Claude to understand how it works. Honestly, it was impressive. The whole project
+took just about 5 hours to complete.  It looks ok in my limited testing but use at your own risk.
 
 
 Examples
