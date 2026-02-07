@@ -1,3 +1,8 @@
+# relion-pipeline-visualizer
+# Copyright (C) 2025 Sean Connell <sean.connell@gmail.com>
+# Structural Biology of Cellular Machines Laboratory, Biobizkaia
+# Licensed under the GNU General Public License v3.0 (GPL-3.0)
+
 from __future__ import annotations
 
 import argparse
@@ -83,6 +88,8 @@ HTML_TEMPLATE = """\
 
           if (info.model_classes && info.model_classes.length > 0) {{
             lines.push("");
+            if (info.pixel_size) lines.push("Pixel size:   " + info.pixel_size.toFixed(3) + " A/px");
+            if (info.iteration) lines.push("Iteration:    " + info.iteration);
             if (info.model_classes.length === 1) {{
               var mc = info.model_classes[0];
               lines.push("Resolution:   " + mc.resolution.toFixed(2) + " A");
@@ -105,8 +112,12 @@ HTML_TEMPLATE = """\
           tip.style.display = "block";
         }});
         node.addEventListener("mousemove", function(e) {{
-          tip.style.left = (e.pageX + 12) + "px";
-          tip.style.top = (e.pageY + 12) + "px";
+          var tipW = tip.offsetWidth, tipH = tip.offsetHeight;
+          var x = e.pageX + 12, y = e.pageY + 12;
+          if (e.clientY + 12 + tipH > window.innerHeight) y = e.pageY - tipH - 12;
+          if (e.clientX + 12 + tipW > window.innerWidth) x = e.pageX - tipW - 12;
+          tip.style.left = x + "px";
+          tip.style.top = y + "px";
         }});
         node.addEventListener("mouseleave", function() {{
           tip.style.display = "none";
@@ -256,12 +267,15 @@ def main(argv: list[str] | None = None) -> None:
     for job_name in jobs:
         job = pipeline.jobs.get(job_name)
         if job:
+            mg = job.model_general
             job_info[job.job_id] = {
                 "name": job.name,
                 "alias": job.alias,
                 "type_label": job.type_label,
                 "status": job.status,
                 "last_command": job.last_command,
+                "pixel_size": mg.pixel_size if mg else None,
+                "iteration": mg.iteration if mg else None,
                 "model_classes": [
                     {
                         "class_index": mc.class_index,

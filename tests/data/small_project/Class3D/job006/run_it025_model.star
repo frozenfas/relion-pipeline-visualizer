@@ -5,6 +5,7 @@ data_model_general
 
 _rlnCurrentResolution                        4.500000
 _rlnCurrentIteration                               25
+_rlnPixelSize                               3.300000
 
 # version 50001
 

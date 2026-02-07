@@ -12,6 +12,7 @@ from relion_pipeline_visualizer.parser import (
     parse_note_txt,
     parse_model_star,
     find_last_iteration_model,
+    ModelGeneralInfo,
 )
 from relion_pipeline_visualizer.graph import (
     get_full_graph,
@@ -121,7 +122,7 @@ class TestEnrichment:
 
     def test_parse_model_star_refine3d(self):
         model_path = SMALL_PROJECT / "Refine3D/job004/run_model.star"
-        classes = parse_model_star(model_path)
+        classes, general = parse_model_star(model_path)
         assert classes is not None
         assert len(classes) == 1
         mc = classes[0]
@@ -131,19 +132,28 @@ class TestEnrichment:
         assert abs(mc.class_distribution - 1.0) < 0.01
         assert abs(mc.accuracy_rotations - 1.5) < 0.01
         assert abs(mc.accuracy_translations_angst - 0.35) < 0.01
+        # General info
+        assert general is not None
+        assert abs(general.pixel_size - 1.5) < 0.01
+        assert general.iteration is None  # run_model.star has no iteration in filename
 
     def test_parse_model_star_class3d(self):
         model_path = SMALL_PROJECT / "Class3D/job006/run_it025_model.star"
-        classes = parse_model_star(model_path)
+        classes, general = parse_model_star(model_path)
         assert classes is not None
         assert len(classes) == 3
         assert abs(classes[0].estimated_resolution - 4.5) < 0.01
         assert abs(classes[1].estimated_resolution - 5.2) < 0.01
         assert abs(classes[2].estimated_resolution - 7.1) < 0.01
+        # General info
+        assert general is not None
+        assert abs(general.pixel_size - 3.3) < 0.01
+        assert general.iteration == 25
 
     def test_parse_model_star_missing(self):
-        classes = parse_model_star(SMALL_PROJECT / "nonexistent.star")
+        classes, general = parse_model_star(SMALL_PROJECT / "nonexistent.star")
         assert classes is None
+        assert general is None
 
     def test_find_last_iteration_model(self):
         model = find_last_iteration_model(SMALL_PROJECT, "Class3D/job006/")
@@ -164,17 +174,23 @@ class TestEnrichment:
         assert "relion_refine_mpi" in r3d.last_command
         assert r3d.model_classes is not None
         assert len(r3d.model_classes) == 1
+        assert r3d.model_general is not None
+        assert abs(r3d.model_general.pixel_size - 1.5) < 0.01
 
         # Class3D/job006 should have command and 3-class model
         c3d = pipeline.jobs["Class3D/job006/"]
         assert c3d.last_command is not None
         assert c3d.model_classes is not None
         assert len(c3d.model_classes) == 3
+        assert c3d.model_general is not None
+        assert c3d.model_general.iteration == 25
+        assert abs(c3d.model_general.pixel_size - 3.3) < 0.01
 
         # Import/job001 should have command but no model
         imp = pipeline.jobs["Import/job001/"]
         assert imp.last_command is not None
         assert imp.model_classes is None
+        assert imp.model_general is None
 
         # Extract/job002 has no note.txt
         ext = pipeline.jobs["Extract/job002/"]

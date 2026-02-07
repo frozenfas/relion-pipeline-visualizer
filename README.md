@@ -1,7 +1,7 @@
 relion-pipeline-visualizer
 ==========================
 
-Visualize RELION 5 cryo-EM processing pipelines as structured, readable Mermaid diagrams.
+Visualize RELION cryo-EM processing pipelines as structured, readable Mermaid diagrams.
 
 This project parses RELION pipeline STAR files and converts them into
 job-level directed acyclic graphs (DAGs), rendering color-coded Mermaid
@@ -9,16 +9,34 @@ flowcharts that make complex workflows easier to understand, debug, and
 communicate.
 
 The tool is intended for:
-- RELION 5 users
+- RELION 4 and 5 users
 - Cryo-EM pipeline inspection and documentation
 - Academic and reproducible research workflows
 
+**Author:** Sean Connell (sean.connell@gmail.com)
+Structural Biology of Cellular Machines Laboratory, [Biobizkaia](https://www.biobizkaia.org)
+
 This project was co-written with [Claude](https://claude.ai) (Anthropic).
+
+
+Examples
+--------
+
+### Full pipeline diagram
+
+![Full pipeline diagram](docs/pipeline_example.svg)
+
+### Focused subgraph (upstream ancestors of PostProcess/job009)
+
+![Subgraph example](docs/subgraph_example.svg)
+
+*Note: screenshots above are rendered via kroki.io from the test pipeline. The HTML output includes interactive hover tooltips with job details, commands, and model statistics — see [Viewing diagrams](#viewing-diagrams) below.*
+
 
 Features
 --------
 
-- Parse RELION 5 `default_pipeline.star` files
+- Parse RELION `default_pipeline.star` files (RELION 4 and 5)
 - Derive job-to-job edges by joining through shared intermediate nodes
 - Generate Mermaid `graph TD` flowcharts
 - Job-type-aware color coding (Import, Extract, Refine3D, Class3D, Select, MaskCreate, PostProcess, CtfRefine, MultiBody, Subtract, JoinStar)
@@ -27,8 +45,8 @@ Features
 - Upstream (ancestors) and/or downstream (descendants) traversal
 - HTML output with interactive hover tooltips showing job details
 - Tooltips show last RELION command from `note.txt`
-- Refine3D tooltips show resolution, Fourier completeness, class distribution, and accuracy
-- Class3D tooltips show per-class statistics from the last iteration model file
+- Refine3D tooltips show pixel size, resolution, Fourier completeness, class distribution, and rotational accuracy (from `run_model.star`)
+- Class3D tooltips show iteration number, pixel size, and per-class statistics from the last iteration model file
 - Outputs both `.mmd` (Mermaid source) and `.html` (self-contained browser view)
 - Shorthand job selection: `--job 93`, `--job job093`, or `--job Refine3D/job093/`
 
@@ -152,8 +170,8 @@ Open the generated `pipeline.html` in any browser. This is the only output forma
 
 - Job name, alias, type, and status
 - Last RELION command executed (from `note.txt`)
-- For Refine3D jobs: resolution, Fourier completeness, class distribution, and rotational/translational accuracy (from `run_model.star`)
-- For Class3D jobs: per-class statistics from the last iteration model file
+- For Refine3D jobs: pixel size, resolution, Fourier completeness, class distribution, and rotational accuracy (from `run_model.star`)
+- For Class3D jobs: iteration number, pixel size, and per-class statistics from the last iteration model file
 
 ### mermaid.live (`--mermaid`)
 
@@ -168,6 +186,17 @@ Opens the diagram as a clean static SVG rendered by [kroki.io](https://kroki.io)
 The raw Mermaid source file can also be pasted into https://mermaid.live or any Mermaid-compatible tool.
 
 
+Roadmap
+-------
+
+Planned features and known limitations:
+
+- [ ] Add enriched tooltips for additional job types (CtfRefine, PostProcess, MultiBody, Subtract, Extract, etc.)
+- [ ] Add support for sub-tomogram averaging (STA) pipelines — currently only tested with single-particle analysis (SPA) workflows
+- [ ] Add tooltip support for RELION 4 model file format differences
+- [ ] Optional legend showing job type color coding
+
+
 Project structure
 -----------------
 
@@ -177,13 +206,19 @@ relion-pipeline-visualizer/
 │   └── relion_pipeline_visualizer/
 │       ├── __init__.py
 │       ├── __main__.py        # Entry point for python -m
-│       ├── cli.py             # CLI argument parsing
+│       ├── cli.py             # CLI argument parsing, HTML template
 │       ├── parser.py          # STAR file parsing, job enrichment (note.txt, model stats)
 │       ├── graph.py           # DAG operations (ancestors, descendants)
 │       └── mermaid.py         # Mermaid diagram rendering
 ├── tests/
+│   ├── test_pipeline.py       # Test suite (45 tests)
 │   └── data/
-│       └── default_pipeline.star
+│       ├── default_pipeline.star
+│       ├── small_pipeline.star
+│       └── small_project/     # Mock RELION project for enrichment tests
+├── docs/
+│   ├── pipeline_example.svg
+│   └── subgraph_example.svg
 ├── pyproject.toml
 ├── environment.yml
 ├── README.md
@@ -195,6 +230,8 @@ RELION compatibility
 --------------------
 
 - Supported: RELION 4 and 5
+- Tested with: single-particle analysis (SPA) pipelines
+- Not yet tested: sub-tomogram averaging (STA) pipelines
 
 
 Privacy and third-party services
@@ -216,6 +253,9 @@ License
 
 This project is licensed under the GNU General Public License v3.0 (GPL-3.0).
 
+Copyright (C) 2025 Sean Connell (sean.connell@gmail.com)
+Structural Biology of Cellular Machines Laboratory, Biobizkaia
+
 You are free to use, modify, and redistribute this software under the terms of
 the GPL-3.0. Any redistributed or modified versions must also be licensed
 under GPL-3.0.
@@ -236,6 +276,8 @@ This project was co-written with [Claude](https://claude.ai) (Anthropic).
 
 Status
 ------
+
+**Version 0.1.0 — Development**
 
 This project is under active development.
 APIs, command-line options, and output formats should be considered unstable

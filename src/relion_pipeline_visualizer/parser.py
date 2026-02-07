@@ -1,3 +1,8 @@
+# relion-pipeline-visualizer
+# Copyright (C) 2025 Sean Connell <sean.connell@gmail.com>
+# Structural Biology of Cellular Machines Laboratory, Biobizkaia
+# Licensed under the GNU General Public License v3.0 (GPL-3.0)
+
 from __future__ import annotations
 
 import re
@@ -19,6 +24,13 @@ class ModelClassInfo:
 
 
 @dataclass
+class ModelGeneralInfo:
+    """General model statistics from a RELION model STAR file."""
+    pixel_size: float | None = None
+    iteration: int | None = None
+
+
+@dataclass
 class Job:
     name: str  # e.g. "Refine3D/job058/"
     alias: str | None  # e.g. "Refine3D/j087_J068_c01/" or None
@@ -26,6 +38,7 @@ class Job:
     status: str  # e.g. "Succeeded", "Failed", "Running"
     last_command: str | None = None
     model_classes: list[ModelClassInfo] | None = None
+    model_general: ModelGeneralInfo | None = None
 
     @property
     def job_type(self) -> str:
@@ -104,22 +117,42 @@ def parse_note_txt(project_dir: Path, job_name: str) -> str | None:
     return commands[-1].strip() if commands else None
 
 
-def parse_model_star(model_path: Path) -> list[ModelClassInfo] | None:
-    """Parse a RELION model STAR file and extract per-class statistics."""
+def parse_model_star(model_path: Path) -> tuple[list[ModelClassInfo] | None, ModelGeneralInfo | None]:
+    """Parse a RELION model STAR file and extract per-class and general statistics."""
     if not model_path.is_file():
-        return None
+        return None, None
     try:
         data = starfile.read(str(model_path))
     except Exception:
-        return None
+        return None, None
 
+    # Parse model_general
+    general = None
+    general_key = None
+    for key in data:
+        if "model_general" in key:
+            general_key = key
+            break
+    if general_key is not None:
+        gen = data[general_key]
+        pixel_size = None
+        iteration = None
+        if "rlnPixelSize" in gen:
+            pixel_size = float(gen["rlnPixelSize"])
+        # Extract iteration from filename (run_it025_model.star -> 25)
+        m = re.search(r"run_it(\d+)_", model_path.name)
+        if m:
+            iteration = int(m.group(1))
+        general = ModelGeneralInfo(pixel_size=pixel_size, iteration=iteration)
+
+    # Parse model_classes
     table_key = None
     for key in data:
         if "model_classes" in key:
             table_key = key
             break
     if table_key is None:
-        return None
+        return None, general
 
     df = data[table_key]
     results = []
@@ -132,7 +165,7 @@ def parse_model_star(model_path: Path) -> list[ModelClassInfo] | None:
             estimated_resolution=float(row.get("rlnEstimatedResolution", 0.0)),
             overall_fourier_completeness=float(row.get("rlnOverallFourierCompleteness", 0.0)),
         ))
-    return results if results else None
+    return (results if results else None), general
 
 
 def find_last_iteration_model(project_dir: Path, job_name: str) -> Path | None:
@@ -149,8 +182,8 @@ def enrich_jobs(pipeline: Pipeline, project_dir: Path) -> None:
 
         if job.job_type == "Refine3D":
             model_path = project_dir / job_name / "run_model.star"
-            job.model_classes = parse_model_star(model_path)
+            job.model_classes, job.model_general = parse_model_star(model_path)
         elif job.job_type == "Class3D":
             model_path = find_last_iteration_model(project_dir, job_name)
             if model_path:
-                job.model_classes = parse_model_star(model_path)
+                job.model_classes, job.model_general = parse_model_star(model_path)
