@@ -2,3 +2,11 @@ __pycache__/
 *.pyc
 *.egg-info/
 .idea/
+pythonProject/.idea/
+
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.secret

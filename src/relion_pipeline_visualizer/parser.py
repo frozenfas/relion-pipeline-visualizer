@@ -43,8 +43,8 @@ class Job:
         """Label for Mermaid node display."""
         if self.alias:
             alias_short = self.alias.rstrip("/").split("/")[-1]
-            return f"{alias_short}<br/>{self.job_type} | {self.status}"
-        return f"{self.name.rstrip('/')}<br/>{self.status}"
+            return f"{alias_short}<br/>{self.job_type}"
+        return self.name.rstrip("/")
 
 
 @dataclass

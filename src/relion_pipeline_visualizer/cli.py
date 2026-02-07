@@ -25,7 +25,7 @@ HTML_TEMPLATE = """\
       color: #fff;
       padding: 8px 12px;
       border-radius: 6px;
-      font: 14px/1.4 monospace;
+      font: 24px/1.4 monospace;
       white-space: pre-wrap;
       max-width: 700px;
       pointer-events: none;
@@ -89,7 +89,6 @@ HTML_TEMPLATE = """\
               lines.push("Completeness: " + (mc.completeness * 100).toFixed(1) + "%");
               lines.push("Distribution: " + (mc.distribution * 100).toFixed(1) + "%");
               lines.push("Acc. rot:     " + mc.accuracy_rot.toFixed(2) + " deg");
-              lines.push("Acc. trans:   " + mc.accuracy_trans.toFixed(2) + " A");
             }} else {{
               lines.push("Classes:");
               info.model_classes.forEach(function(mc) {{
@@ -244,9 +243,9 @@ def main(argv: list[str] | None = None) -> None:
         existing = [p for p in (mmd_path, html_path) if p.exists()]
         if existing:
             names = ", ".join(str(p) for p in existing)
-            print(f"Error: output file(s) already exist: {names}", file=sys.stderr)
-            print("Use --force / -f to overwrite.", file=sys.stderr)
-            sys.exit(1)
+            print(f"Output file(s) already exist: {names}", file=sys.stderr)
+            print("Use -f to overwrite.", file=sys.stderr)
+            sys.exit(0)
 
     # Write .mmd file
     mmd_path.write_text(mermaid_text)
@@ -299,7 +298,8 @@ def main(argv: list[str] | None = None) -> None:
         })
         encoded = base64.urlsafe_b64encode(state.encode()).decode().rstrip("=")
         url = f"https://mermaid.live/edit#base64:{encoded}"
-        print(f"mermaid.live URL:     {url}", file=sys.stderr)
+        link = f"\033]8;;{url}\033\\Open in mermaid.live\033]8;;\033\\"
+        print(f"mermaid.live: {link}", file=sys.stderr)
         webbrowser.open(url)
 
     if args.kroki:
@@ -309,7 +309,8 @@ def main(argv: list[str] | None = None) -> None:
         compressed = zlib.compress(mermaid_text.encode(), 9)
         encoded = base64.urlsafe_b64encode(compressed).decode()
         url = f"https://kroki.io/mermaid/svg/{encoded}"
-        print(f"kroki.io URL:         {url}", file=sys.stderr)
+        link = f"\033]8;;{url}\033\\Open in kroki.io\033]8;;\033\\"
+        print(f"kroki.io:     {link}", file=sys.stderr)
         webbrowser.open(url)
 
     if args.mermaid or args.kroki:

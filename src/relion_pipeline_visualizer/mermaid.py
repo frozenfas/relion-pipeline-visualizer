@@ -4,22 +4,22 @@ from relion_pipeline_visualizer.parser import Pipeline
 
 # Color palette by job type
 TYPE_STYLES = {
-    "Import": "fill:#4CAF50,color:#fff,font-size:48px",
-    "Extract": "fill:#8BC34A,color:#fff,font-size:48px",
-    "Refine3D": "fill:#2196F3,color:#fff,font-size:48px",
-    "Class3D": "fill:#FF9800,color:#fff,font-size:48px",
-    "Select": "fill:#9C27B0,color:#fff,font-size:48px",
-    "MaskCreate": "fill:#607D8B,color:#fff,font-size:48px",
-    "PostProcess": "fill:#00BCD4,color:#fff,font-size:48px",
-    "CtfRefine": "fill:#3F51B5,color:#fff,font-size:48px",
-    "MultiBody": "fill:#E91E63,color:#fff,font-size:48px",
-    "Subtract": "fill:#795548,color:#fff,font-size:48px",
-    "JoinStar": "fill:#009688,color:#fff,font-size:48px",
+    "Import": "fill:#4CAF50,color:#fff,font-size:48px,stroke:#333,stroke-width:4px",
+    "Extract": "fill:#8BC34A,color:#fff,font-size:48px,stroke:#333,stroke-width:4px",
+    "Refine3D": "fill:#2196F3,color:#fff,font-size:48px,stroke:#333,stroke-width:4px",
+    "Class3D": "fill:#FF9800,color:#fff,font-size:48px,stroke:#333,stroke-width:4px",
+    "Select": "fill:#9C27B0,color:#fff,font-size:48px,stroke:#333,stroke-width:4px",
+    "MaskCreate": "fill:#607D8B,color:#fff,font-size:48px,stroke:#333,stroke-width:4px",
+    "PostProcess": "fill:#00BCD4,color:#fff,font-size:48px,stroke:#333,stroke-width:4px",
+    "CtfRefine": "fill:#3F51B5,color:#fff,font-size:48px,stroke:#333,stroke-width:4px",
+    "MultiBody": "fill:#E91E63,color:#fff,font-size:48px,stroke:#333,stroke-width:4px",
+    "Subtract": "fill:#795548,color:#fff,font-size:48px,stroke:#333,stroke-width:4px",
+    "JoinStar": "fill:#009688,color:#fff,font-size:48px,stroke:#333,stroke-width:4px",
 }
 
 STATUS_STYLES = {
-    "Failed": "stroke:#f44336,stroke-width:3px",
-    "Running": "stroke:#FF9800,stroke-width:3px,stroke-dasharray:5",
+    "Failed": "stroke:#f44336,stroke-width:6px",
+    "Running": "stroke:#FF9800,stroke-width:6px,stroke-dasharray:5",
 }
 
 
