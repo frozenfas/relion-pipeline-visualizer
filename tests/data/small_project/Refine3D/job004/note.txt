@@ -1,0 +1,3 @@
+ ++++ Executing command at: Feb 01, 2025 10:30:00
+`which relion_refine_mpi` --o Refine3D/job004/run --i JoinStar/job003/join_particles.star --particle_diameter 300 --K 1
+

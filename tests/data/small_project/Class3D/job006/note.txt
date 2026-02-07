@@ -1,0 +1,3 @@
+ ++++ Executing command at: Feb 02, 2025 14:00:00
+`which relion_refine_mpi` --o Class3D/job006/run --i Refine3D/job004/run_data.star --K 3 --iter 25
+
